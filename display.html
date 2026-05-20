@@ -150,7 +150,7 @@
 
 <script>
     // Deine GitHub Pages URL für die stats.json
-    const STATS_URL = 'https://raw.githubusercontent.com/DEIN_USERNAME/DEIN_REPO/main/stats.json';
+    const STATS_URL = 'https://raw.githubusercontent.com/MarioDittrich/SoccerStatisticsLive/main/stats.json';
     
     // Statistik-Kategorien (Heim und Gast separat)
     const STATS = [
@@ -249,7 +249,7 @@
     async function loadStats() {
         try {
             // Versuche mit GitHub API (funktioniert immer)
-            const apiUrl = `https://api.github.com/repos/DEIN_USERNAME/DEIN_REPO/contents/stats.json`;
+            const apiUrl = `https://api.github.com/repos/MarioDittrich/SoccerStatisticsLive/contents/stats.json`;
             const response = await fetch(apiUrl);
             
             if (response.ok) {

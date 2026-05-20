@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Statistiken - OBS Overlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: transparent;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stats-container {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.7) 100%);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 20px 25px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-width: 280px;
+        }
+
+        .title {
+            text-align: center;
+            color: #ffd700;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-name {
+            color: #e0e0e0;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            color: #ffd700;
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: monospace;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+        }
+
+        .last-updated {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="stats-container">
+    <div class="title">⚽ LIVE STATISTIK</div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="last-updated" id="lastUpdate">Wird geladen...</div>
+</div>
+
+<script>
+    // KEIN TOKEN HIER! Nur der öffentliche GitHub Pages Link
+    const STATS_URL = 'https://raw.githubusercontent.com/DEIN_USERNAME/DEIN_REPO/main/stats.json';
+    
+    const STATS = [
+        { id: 'corners', name: 'Ecken', icon: '🏁' },
+        { id: 'yellowCards', name: 'Gelbe Karten', icon: '🟨' },
+        { id: 'redCards', name: 'Rote Karten', icon: '🟥' },
+        { id: 'freeKicks', name: 'Freistöße', icon: '⚡' },
+        { id: 'penalties', name: 'Elfmeter', icon: '🎯' },
+        { id: 'shots', name: 'Torschüsse', icon: '🎯' },
+        { id: 'shotsOnTarget', name: 'Schüsse aufs Tor', icon: '📊' },
+        { id: 'offsides', name: 'Abseits', icon: '🚩' },
+        { id: 'fouls', name: 'Fouls', icon: '⚠️' },
+        { id: 'goalKicks', name: 'Abstöße', icon: '🥅' },
+        { id: 'throwIns', name: 'Einwürfe', icon: '🔄' }
+    ];
+
+    async function loadAndDisplay() {
+        try {
+            const response = await fetch(STATS_URL + '?t=' + Date.now()); // Cache vermeiden
+            if (response.ok) {
+                const stats = await response.json();
+                
+                const grid = document.getElementById('statsGrid');
+                grid.innerHTML = '';
+                
+                STATS.forEach(stat => {
+                    const value = stats[stat.id] || 0;
+                    const div = document.createElement('div');
+                    div.className = 'stat-item';
+                    div.innerHTML = `
+                        <span class="stat-name">${stat.icon} ${stat.name}</span>
+                        <span class="stat-value">${value}</span>
+                    `;
+                    grid.appendChild(div);
+                });
+                
+                const now = new Date();
+                document.getElementById('lastUpdate').innerHTML = `Letzte Aktualisierung: ${now.toLocaleTimeString()}`;
+            } else {
+                document.getElementById('statsGrid').innerHTML = '<div style="color:red;text-align:center;">Keine Daten verfügbar</div>';
+            }
+        } catch (error) {
+            console.error('Fehler:', error);
+            document.getElementById('statsGrid').innerHTML = '<div style="color:red;text-align:center;">Fehler beim Laden</div>';
+        }
+    }
+
+    // Alle 5 Sekunden automatisch aktualisieren (oder du aktualisiert manuell in OBS)
+    loadAndDisplay();
+    setInterval(loadAndDisplay, 5000);
+</script>
+</body>
+</html>
